@@ -60,7 +60,7 @@ SELECT location, Population, date, MAX(total_cases) as HighestInfectedCount, MAX
 FROM covid_project.coviddeathss
 where continent is not null
 Group by location, Population, date
-Order By HighestInfectionPop desc; -- i want to see the highest infectedpoppercentage
+Order By date desc; -- i want to see the highest infectedpoppercentage
 
 -- continents with the highest death count per perpopulation
 
@@ -179,13 +179,16 @@ SELECT * FROM covid_project.totaldeathscounts
 where location not in ("World","Europe", "Asia", "Africa");
 
 -- 3. countries with highest infection rate compared to population
-Create view HighestInfectionPop as
-SELECT location, Population, MAX(total_cases) as HighestInfectedCount, MAX((total_cases/Population)) * 100 as HighestInfectionPop
+
+Create view HighestInfectedPop as
+SELECT location, Population, date, MAX(total_cases) as HighestInfectedCount, MAX((total_cases/Population)) * 100 as HighestInfectedPop
 FROM covid_project.coviddeathss
 where continent is not null
-Group by location, Population
-Order By HighestInfectionPop desc;
-SELECT * FROM covid_project.highestinfectionpop;
+and location not in ("Africa", "Europe", "World", "Asia")
+Group by location, Population, date
+Order By date desc;
+SELECT * FROM covid_project.highestinfectedpop;
+
 
 -- 4. overall across the globe - Global Numbers
 Create view GlobalDeathPercentage as
@@ -195,11 +198,12 @@ where continent is not null;
 SELECT * FROM covid_project.globaldeathpercentage;
 
 -- 5. DeathToll
-Create view DeathToll as
-SELECT continent, max(cast(total_deaths as SIGNED)) as DeathToll -- changing the datatype of the column = totaldeaths
+Create view DeathTolls as
+Select location, date, max(cast(new_deaths as Signed)) as DeathTolls
 FROM covid_project.coviddeathss
-where trim(continent) is not null
-And trim(continent) <> ""
-Group by continent
-Order By DeathToll desc;
-SELECT * FROM covid_project.deathtoll;
+Where location not in ('Europe', 'Asia', 'Africa')
+Group by location, date
+order by date desc;
+SELECT * FROM covid_project.deathtolls;
+
+
